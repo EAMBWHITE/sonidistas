@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { collection, getDocs } from "firebase/firestore"; 
+import { DocumentReference, getFirestore } from "firebase/firestore";
+import { collection, getDocs,getDoc } from "firebase/firestore"; 
+import { FechaType, UsuarioType } from "../../components/types/firebaseTypes.type";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCwSsnnN9Xomg51aZFW6JHN7cLIF56nOXE",
@@ -19,5 +20,21 @@ const firebaseConfig = {
 
 const querySnapshot = await getDocs(collection(db, "fechas"));
 
-export default querySnapshot;
+let productsWithUser:FechaType[] = []
+
+querySnapshot.forEach(async (doc) => {
+  let newItem = {...doc.data() as FechaType};
+  if(newItem.responsables.principal|| newItem.responsables.soporte) {
+    let userData = await getDoc(newItem.responsables.principal as unknown as DocumentReference);
+    if(userData.exists()) {
+      newItem.responsables.datos_principal=userData.data() as UsuarioType;
+    }
+    productsWithUser.push(newItem);
+  } else {
+    productsWithUser.push(newItem);
+  }
+});
+
+
+export default productsWithUser;
 
