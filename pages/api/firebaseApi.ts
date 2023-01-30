@@ -1,40 +1,65 @@
 import { initializeApp } from "firebase/app";
-import { DocumentReference, getFirestore } from "firebase/firestore";
-import { collection, getDocs,getDoc } from "firebase/firestore"; 
-import { FechaType, UsuarioType } from "../../components/types/firebaseTypes.type";
+import {
+  DocumentReference,
+  getFirestore,
+  doc,
+  collection,
+  getDocs,
+  getDoc,
+} from "firebase/firestore";
+import {
+  FechaType,
+  UsuarioType,
+} from "../../components/types/firebaseTypes.type";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCwSsnnN9Xomg51aZFW6JHN7cLIF56nOXE",
-    authDomain: "inventario-fe7ab.firebaseapp.com",
-    databaseURL: "https://inventario-fe7ab.firebaseio.com",
-    projectId: "inventario-fe7ab",
-    storageBucket: "inventario-fe7ab.appspot.com",
-    messagingSenderId: "343388459620",
-    appId: "1:343388459620:web:b294ee7cd61299c6d88571"
-  };
-  
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  
-  const db = getFirestore(app);
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API,
+  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_DATABASE_URL,
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_APP_ID,
+};
 
-const querySnapshot = await getDocs(collection(db, "fechas"));
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
-let productsWithUser:FechaType[] = []
+const db = getFirestore(app);
 
-querySnapshot.forEach(async (doc) => {
-  let newItem = {...doc.data() as FechaType};
-  if(newItem.responsables.principal|| newItem.responsables.soporte) {
-    let userData = await getDoc(newItem.responsables.principal as unknown as DocumentReference);
-    if(userData.exists()) {
-      newItem.responsables.datos_principal=userData.data() as UsuarioType;
+export const getData = async (setFecha: any) => {
+  const querySnapshot = await getDocs(collection(db, "fechas"));
+
+  let rolData: any[] = [];
+
+  await querySnapshot.forEach(async (item) => {
+    let newItem = { ...(item.data() as any) };
+    console.log(newItem);
+    if (newItem.responsables.principal && newItem.responsables.soporte) {
+      const sonidistaPrincipal = doc(
+        db,
+        `usuario/${newItem.responsables.principal}`
+      );
+
+      let dataPrincipal = await getDoc(sonidistaPrincipal);
+      if (dataPrincipal.exists()) {
+        newItem.responsables.datos_principal = dataPrincipal.data() as any;
+      }
+
+      const sonidistaSoporte = doc(
+        db,
+        `usuario/${newItem.responsables.soporte}`
+      );
+
+      let dataSoporte = await getDoc(sonidistaSoporte);
+      if (dataSoporte.exists()) {
+        newItem.responsables.datos_soporte = dataSoporte.data() as any;
+      }
+
+      rolData.push(newItem);
+    } else {
+      rolData.push(newItem);
     }
-    productsWithUser.push(newItem);
-  } else {
-    productsWithUser.push(newItem);
-  }
-});
-
-
-export default productsWithUser;
-
+  });
+  return rolData;
+};
