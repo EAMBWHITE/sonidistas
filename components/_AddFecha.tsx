@@ -1,9 +1,47 @@
-import { useState } from "react";
-import { Box, Button, Drawer, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Drawer,
+  TextField,
+  Typography,
+} from "@mui/material";
 import BasicDatePicker from "./BasicDatePicker";
+import { getSonidistas, saveFecha } from "../pages/api/firebaseApi";
+import { FechaType } from "./types/firebaseTypes.type";
+import { Dayjs } from "dayjs";
+import { Timestamp } from "firebase/firestore";
 
 export default function DrawerAddFecha() {
   const [isOpen, setIsOpen] = useState(false);
+  const [listSonidistas, setListSonidistas] = useState<any[]>([]);
+  const [responsable, setResponsable] = useState("");
+  const [soporte, setSoporte] = useState("");
+  const [value, setValue] = useState<Dayjs | null>(null);
+
+  useEffect(() => {
+    const fetchSonidistas = async () => {
+      const list = await getSonidistas();
+      setListSonidistas(list.data);
+    };
+
+    fetchSonidistas();
+  }, []);
+
+  const handleSaveFecha = () => {
+    const d = value?.toDate() as Date;
+
+    //create object
+    const fecha: FechaType = {
+      fecha: Timestamp.fromDate(d),
+      responsables: {
+        principal: responsable,
+        soporte: soporte,
+      },
+    };
+    saveFecha(fecha);
+  };
 
   const drawerTitle = (
     <Box
@@ -25,7 +63,28 @@ export default function DrawerAddFecha() {
       flexDirection="column"
       justifyContent="center"
     >
-      <BasicDatePicker title="" />
+      <BasicDatePicker title="" value={value} setValue={setValue} />
+      <Autocomplete
+        disablePortal
+        id="combo-box-principal"
+        options={listSonidistas}
+        sx={{ width: 300 }}
+        renderInput={(params) => <TextField {...params} label="Sonidistas" />}
+        onChange={(event: any, newValue: any) => {
+          setResponsable(newValue?.id);
+        }}
+      />
+      <Autocomplete
+        disablePortal
+        id="combo-box-soporte"
+        options={listSonidistas}
+        sx={{ width: 300 }}
+        renderInput={(params) => <TextField {...params} label="Sonidistas" />}
+        onChange={(event: any, newValue: any) => {
+          setSoporte(newValue?.id);
+        }}
+      />
+      <Button onClick={() => handleSaveFecha()}>Agregar</Button>
     </Box>
   );
 
