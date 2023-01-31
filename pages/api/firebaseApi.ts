@@ -5,6 +5,8 @@ import {
   collection,
   getDocs,
   getDoc,
+  setDoc,
+  Timestamp,
 } from "firebase/firestore";
 import {
   FechaType,
@@ -54,4 +56,8 @@ export const getResponsables = async () => {
   return {
     data: list as FechaType[],
   };
+};
+
+export const addFecha = async (fecha: FechaType) => {
+  await setDoc(doc(db, "fechas"), fecha);
 };
