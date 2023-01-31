@@ -5,5 +5,8 @@ export const getLocaleDate = (date: Date) => {
     month: "long",
     day: "numeric",
   };
-  return date.toLocaleDateString("es-ES", options).toUpperCase();
+
+  if (date !== undefined)
+    return date.toLocaleDateString("es-ES", options).toUpperCase();
+  else return null;
 };

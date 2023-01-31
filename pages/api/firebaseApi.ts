@@ -1,6 +1,5 @@
-import { initializeApp } from "firebase/app";
+import firebaseApp from "../api/clientApp";
 import {
-  DocumentReference,
   getFirestore,
   doc,
   collection,
@@ -12,54 +11,47 @@ import {
   UsuarioType,
 } from "../../components/types/firebaseTypes.type";
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API,
-  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
-  databaseURL: process.env.NEXT_PUBLIC_DATABASE_URL,
-  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_APP_ID,
-};
+const db = getFirestore(firebaseApp);
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
-
-export const getData = async (setFecha: any) => {
+export const getData = async (): Promise<{ data: FechaType[] }> => {
   const querySnapshot = await getDocs(collection(db, "fechas"));
 
-  let rolData: any[] = [];
+  let rolData: FechaType[] = [];
 
-  await querySnapshot.forEach(async (item) => {
-    let newItem = { ...(item.data() as any) };
-    console.log(newItem);
-    if (newItem.responsables.principal && newItem.responsables.soporte) {
-      const sonidistaPrincipal = doc(
-        db,
-        `usuario/${newItem.responsables.principal}`
-      );
+  querySnapshot.forEach((item) => {
+    let rol = item.data() as FechaType;
 
-      let dataPrincipal = await getDoc(sonidistaPrincipal);
-      if (dataPrincipal.exists()) {
-        newItem.responsables.datos_principal = dataPrincipal.data() as any;
-      }
-
-      const sonidistaSoporte = doc(
-        db,
-        `usuario/${newItem.responsables.soporte}`
-      );
-
-      let dataSoporte = await getDoc(sonidistaSoporte);
-      if (dataSoporte.exists()) {
-        newItem.responsables.datos_soporte = dataSoporte.data() as any;
-      }
-
-      rolData.push(newItem);
-    } else {
-      rolData.push(newItem);
-    }
+    rolData.push(rol);
   });
-  return rolData;
+  return { data: rolData };
+};
+
+export const getResponsables = async () => {
+  const fechas = await getData();
+
+  const { data } = fechas;
+
+  const list = await Promise.all(
+    data.map(async (rol: FechaType) => {
+      if (rol.responsables?.principal) {
+        const sonidistaPrincipal = doc(
+          db,
+          `usuario/${rol.responsables.principal}`
+        );
+
+        let dataPrincipal = await getDoc(sonidistaPrincipal);
+        rol.responsables.datos_principal = dataPrincipal.data() as UsuarioType;
+
+        const sonidistaSoporte = doc(db, `usuario/${rol.responsables.soporte}`);
+        let dataSoporte = await getDoc(sonidistaSoporte);
+        rol.responsables.datos_soporte = dataSoporte.data() as UsuarioType;
+
+        return rol;
+      }
+    })
+  );
+
+  return {
+    data: list as FechaType[],
+  };
 };
