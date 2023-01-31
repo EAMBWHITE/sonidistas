@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Inter } from "@next/font/google";
 import styles from "../styles/Home.module.css";
 import ListRol from "../components/_ListRol";
+import DrawerAddFecha from "../components/_AddFecha";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,6 +39,7 @@ export default function Home() {
           </div>
         </div>
         <ListRol />
+        <DrawerAddFecha />
       </main>
     </>
   );

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
@@ -33,7 +33,7 @@ export default function ListRol() {
             letterSpacing: 0,
             color: "Black",
           }}
-          secondary={item?.responsables?.datos_principal?.nombre}
+          secondary={`${item?.responsables?.datos_principal?.nombre} - ${item?.responsables?.datos_soporte?.nombre}`}
           secondaryTypographyProps={{
             fontSize: 16,
             fontWeight: "medium",
