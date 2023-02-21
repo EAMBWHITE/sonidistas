@@ -5,6 +5,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Dispatch } from "react";
+import { Typography } from "@mui/material";
 
 type BasicDatePickerType = {
   title: string;
@@ -19,6 +20,8 @@ export default function BasicDatePicker({
 }: BasicDatePickerType) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
+      {/* <Typography>
+        Fecha */}
       <DatePicker
         label={title}
         value={value}
@@ -27,6 +30,7 @@ export default function BasicDatePicker({
         }}
         renderInput={(params: any) => <TextField {...params} />}
       />
+      {/* </Typography> */}
     </LocalizationProvider>
   );
 }

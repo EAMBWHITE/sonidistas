@@ -5,11 +5,9 @@ import {
   collection,
   getDocs,
   getDoc,
-  setDoc,
-  Timestamp,
-  addDoc,
   query,
   where,
+  addDoc,
 } from "firebase/firestore";
 import {
   FechaType,
@@ -19,7 +17,11 @@ import {
 const db = getFirestore(firebaseApp);
 
 export const getData = async (): Promise<{ data: FechaType[] }> => {
-  const querySnapshot = await getDocs(collection(db, "fechas"));
+  const today = new Date();
+
+  const q = query(collection(db, "fechas"), where("fecha", ">=", today));
+
+  const querySnapshot = await getDocs(q);
 
   let rolData: FechaType[] = [];
 

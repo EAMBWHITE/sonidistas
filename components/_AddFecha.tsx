@@ -63,34 +63,48 @@ export default function DrawerAddFecha() {
       flexDirection="column"
       justifyContent="center"
     >
-      <BasicDatePicker title="" value={value} setValue={setValue} />
-      <Autocomplete
-        disablePortal
-        id="combo-box-principal"
-        options={listSonidistas}
-        sx={{ width: 300 }}
-        renderInput={(params) => <TextField {...params} label="Sonidistas" />}
-        onChange={(event: any, newValue: any) => {
-          setResponsable(newValue?.id);
-        }}
-      />
-      <Autocomplete
-        disablePortal
-        id="combo-box-soporte"
-        options={listSonidistas}
-        sx={{ width: 300 }}
-        renderInput={(params) => <TextField {...params} label="Sonidistas" />}
-        onChange={(event: any, newValue: any) => {
-          setSoporte(newValue?.id);
-        }}
-      />
+      <Box display="flex" justifyContent="center" alignItems="center" py="1rem">
+        <BasicDatePicker title="Fecha" value={value} setValue={setValue} />
+      </Box>
+      <Box display="flex" justifyContent="center" alignItems="center" py="1rem">
+        {/* <Typography>
+          Responsable */}
+        <Autocomplete
+          disablePortal
+          id="combo-box-principal"
+          options={listSonidistas}
+          sx={{ width: 300 }}
+          renderInput={(params) => (
+            <TextField {...params} label="Respoonsable" />
+          )}
+          onChange={(event: any, newValue: any) => {
+            setResponsable(newValue?.id);
+          }}
+        />
+        {/* </Typography> */}
+      </Box>
+      <Box display="flex" justifyContent="center" alignItems="center" py="1rem">
+        {/* <Typography>
+          Soporte */}
+        <Autocomplete
+          disablePortal
+          id="combo-box-soporte"
+          options={listSonidistas}
+          sx={{ width: 300 }}
+          renderInput={(params) => <TextField {...params} label="Soporte" />}
+          onChange={(event: any, newValue: any) => {
+            setSoporte(newValue?.id);
+          }}
+        />
+        {/* </Typography> */}
+      </Box>
       <Button onClick={() => handleSaveFecha()}>Agregar</Button>
     </Box>
   );
 
   return (
     <>
-      <Button onClick={() => setIsOpen(!isOpen)}>Agregar Fecha</Button>
+      <Button onClick={() => setIsOpen(!isOpen)}>Fechas</Button>
       <Drawer
         anchor="right"
         open={isOpen}
@@ -108,7 +122,13 @@ export default function DrawerAddFecha() {
           justifyContent="space-between"
           pt={3}
         >
-          <Box width={1} flexDirection="column" justifyContent="center">
+          <Box
+            width={1}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            flexDirection="column"
+          >
             {drawerTitle}
             {drawerBody}
           </Box>
