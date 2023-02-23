@@ -1,27 +1,17 @@
-import { useEffect, useState } from "react";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import { getLocaleDate } from "../pages/api/util";
 import { Avatar, ListItemAvatar } from "@mui/material";
-import { getResponsables } from "../pages/api/firebaseApi";
+import useFireBaseApi, { getResponsables } from "../pages/api/firebaseApi";
 import { FechaType } from "./types/firebaseTypes.type";
 
 export default function ListRol() {
-  const [listFechas, setFechas] = useState<FechaType[]>([]);
+  const { fechas } = useFireBaseApi();
 
-  useEffect(() => {
-    const data = async () => {
-      const fechas = await getResponsables();
-      const { data } = fechas;
-      setFechas(data);
-    };
-    data();
-  }, []);
-
-  const listItemFechas = listFechas?.map((item: any) => {
+  const listItemFechas = fechas?.map((item: FechaType) => {
     return (
-      <ListItem key={item?.responsables?.principal}>
+      <ListItem key={item?.id}>
         <ListItemAvatar>
           <Avatar></Avatar>
         </ListItemAvatar>

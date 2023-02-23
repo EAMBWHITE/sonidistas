@@ -8,26 +8,17 @@ import {
   Typography,
 } from "@mui/material";
 import BasicDatePicker from "./BasicDatePicker";
-import { getSonidistas, saveFecha } from "../pages/api/firebaseApi";
-import { FechaType } from "./types/firebaseTypes.type";
+import useFireBaseApi from "../pages/api/firebaseApi";
+import { FechaType, UsuarioType } from "./types/firebaseTypes.type";
 import { Dayjs } from "dayjs";
 import { Timestamp } from "firebase/firestore";
 
 export default function DrawerAddFecha() {
   const [isOpen, setIsOpen] = useState(false);
-  const [listSonidistas, setListSonidistas] = useState<any[]>([]);
-  const [responsable, setResponsable] = useState("");
-  const [soporte, setSoporte] = useState("");
+  const [responsable, setResponsable] = useState<UsuarioType | null>(null);
+  const [soporte, setSoporte] = useState<UsuarioType | null>(null);
   const [value, setValue] = useState<Dayjs | null>(null);
-
-  useEffect(() => {
-    const fetchSonidistas = async () => {
-      const list = await getSonidistas();
-      setListSonidistas(list.data);
-    };
-
-    fetchSonidistas();
-  }, []);
+  const { saveFecha, sonidistas } = useFireBaseApi();
 
   const handleSaveFecha = () => {
     const d = value?.toDate() as Date;
@@ -36,11 +27,20 @@ export default function DrawerAddFecha() {
     const fecha: FechaType = {
       fecha: Timestamp.fromDate(d),
       responsables: {
-        principal: responsable,
-        soporte: soporte,
+        principal: responsable?.id as string,
+        datos_principal: responsable as UsuarioType,
+        soporte: soporte?.id as string,
+        datos_soporte: soporte as UsuarioType,
       },
     };
     saveFecha(fecha);
+    clearForm();
+  };
+
+  const clearForm = () => {
+    setSoporte(null);
+    setResponsable(null);
+    // setValue(null);
   };
 
   const drawerTitle = (
@@ -72,13 +72,13 @@ export default function DrawerAddFecha() {
         <Autocomplete
           disablePortal
           id="combo-box-principal"
-          options={listSonidistas}
+          options={sonidistas}
           sx={{ width: 300 }}
           renderInput={(params) => (
             <TextField {...params} label="Respoonsable" />
           )}
           onChange={(event: any, newValue: any) => {
-            setResponsable(newValue?.id);
+            setResponsable(newValue);
           }}
         />
         {/* </Typography> */}
@@ -89,11 +89,11 @@ export default function DrawerAddFecha() {
         <Autocomplete
           disablePortal
           id="combo-box-soporte"
-          options={listSonidistas}
+          options={sonidistas}
           sx={{ width: 300 }}
           renderInput={(params) => <TextField {...params} label="Soporte" />}
           onChange={(event: any, newValue: any) => {
-            setSoporte(newValue?.id);
+            setSoporte(newValue);
           }}
         />
         {/* </Typography> */}

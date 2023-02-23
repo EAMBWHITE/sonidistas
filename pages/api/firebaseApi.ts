@@ -13,6 +13,15 @@ import {
   FechaType,
   UsuarioType,
 } from "../../components/types/firebaseTypes.type";
+import { useAppContext } from "../../context/AppContext";
+import { useEffect, useState } from "react";
+import { useSnackbar } from "../../context/snackbar";
+
+export type useFireBaseApiType = {
+  sonidistas: UsuarioType[];
+  saveFecha: (fecha: FechaType) => void;
+  fechas: FechaType[];
+};
 
 const db = getFirestore(firebaseApp);
 
@@ -27,6 +36,7 @@ export const getData = async (): Promise<{ data: FechaType[] }> => {
 
   querySnapshot.forEach((item) => {
     let rol = item.data() as FechaType;
+    rol.id = item.id;
     rolData.push(rol);
   });
   return {
@@ -59,15 +69,16 @@ export const getResponsables = async () => {
     })
   );
 
+  //update the context
+  // context?.setListFechas(list as FechaType[]);
+
   return {
     data: list as FechaType[],
   };
 };
 
 export const saveFecha = async (fecha: FechaType) => {
-  console.log(fecha);
   const docRef = await addDoc(collection(db, "fechas"), fecha);
-  console.log(docRef.id);
 };
 
 export const getSonidistas = async () => {
@@ -87,3 +98,50 @@ export const getSonidistas = async () => {
     data: convertData,
   };
 };
+
+export default function useFireBaseApi(): useFireBaseApiType {
+  const [listSonidistas, setListSonidistas] = useState<any[]>([]);
+  const context = useAppContext();
+  const { notifySuccess, notifyError } = useSnackbar();
+
+  useEffect(() => {
+    const dataResponsables = async () => {
+      const fechas = await getResponsables();
+      const { data } = fechas;
+      context.setListFechas(data);
+    };
+
+    const dataSonidistas = async () => {
+      const list = await getSonidistas();
+      const { data } = list;
+      setListSonidistas(data);
+    };
+
+    dataResponsables();
+    dataSonidistas();
+  }, []);
+
+  const handeSaveFecha = (fecha: FechaType) => {
+    //validate date already exist
+    const prevDate = context.listFechas.find(
+      (e) =>
+        new Date(e.fecha.toDate()).toISOString() ==
+        new Date(fecha.fecha.toDate()).toISOString()
+    );
+
+    if (prevDate === undefined) {
+      // saveFecha(fecha).then(() =>
+      //   context?.setListFechas([...context.listFechas, fecha])
+      // );
+      notifySuccess("Fecha agregada correctamente");
+    } else {
+      notifyError("Esa fecha ya existe");
+    }
+  };
+
+  return {
+    fechas: context.listFechas,
+    saveFecha: handeSaveFecha,
+    sonidistas: listSonidistas,
+  };
+}

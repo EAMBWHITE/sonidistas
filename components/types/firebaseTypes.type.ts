@@ -1,11 +1,13 @@
 import { DocumentSnapshot, Timestamp } from "firebase/firestore";
 
 export type UsuarioType = {
+  id?: string;
   activo: boolean;
   nombre: string;
 };
 
 export type FechaType = {
+  id?: string;
   fecha: Timestamp;
   responsables: {
     principal: string;
