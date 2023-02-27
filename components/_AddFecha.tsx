@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  AlertColor,
   Autocomplete,
   Box,
   Button,
@@ -12,19 +13,41 @@ import useFireBaseApi from "../api/firebaseApi";
 import { FechaType, UsuarioType } from "./types/firebaseTypes.type";
 import { Dayjs } from "dayjs";
 import { Timestamp } from "firebase/firestore";
+import CustomizedSnackbar, {
+  CustomizedSnackbarsType,
+} from "../context/snackbar/CustomSnackbar";
 
 export default function DrawerAddFecha() {
   const [isOpen, setIsOpen] = useState(false);
   const [responsable, setResponsable] = useState<UsuarioType | null>(null);
   const [soporte, setSoporte] = useState<UsuarioType | null>(null);
   const [fecha, setValue] = useState<Dayjs | null>(null);
+  const [alertVal, setAlertVal] = useState<CustomizedSnackbarsType | null>(
+    null
+  );
   const { saveFecha, sonidistas } = useFireBaseApi();
 
-  const handleSaveFecha = () => {
-    debugger;
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setAlertVal({ open: false });
+  };
 
+  const handleSaveFecha = () => {
     // first ltes validate the fields
-    if (soporte == null || responsable == null || fecha == null) return null;
+    if (soporte == null || responsable == null || fecha == null) {
+      setAlertVal({
+        message: "Favor llenar todos los campos",
+        open: true,
+        severity: "error",
+        onClose: handleClose,
+      });
+      return;
+    }
 
     const d = fecha?.toDate() as Date;
 
@@ -39,6 +62,12 @@ export default function DrawerAddFecha() {
       },
     };
     saveFecha(newFecha);
+    setAlertVal({
+      message: "Fecha agregada correctamente",
+      open: true,
+      severity: "success",
+      onClose: handleClose,
+    });
     clearForm();
   };
 
@@ -127,12 +156,14 @@ export default function DrawerAddFecha() {
             alignItems="center"
             justifyContent="center"
             flexDirection="column"
+            pt="30vh"
           >
             {drawerTitle}
             {drawerBody}
           </Box>
         </Box>
       </Drawer>
+      <CustomizedSnackbar {...alertVal} />
     </>
   );
 }
