@@ -5,25 +5,15 @@ import {
   useMemo,
   useState,
   SyntheticEvent,
-  MouseEventHandler,
 } from "react";
 import {
   SnackbarCloseReason,
-  Snackbar,
-  AlertProps,
   SnackbarProps as MuiSnackbarProps,
-  Alert,
 } from "@mui/material";
+import { AlertSeverityType } from "./CustomSnacbar.types";
 import NHSnackbar from "./NHSnackbar";
 
 export type AlertMessageType = string | JSX.Element;
-
-export type NHAlertPropsType = {
-  testId?: string;
-  actionText?: string;
-  actionCallback?: MouseEventHandler;
-} & AlertProps;
-export type AlertSeverityType = AlertProps["severity"];
 
 export type NotifyOptionsType = {
   title?: string;
@@ -70,7 +60,7 @@ export type SnackbarProviderPropsType = {
 } & MuiSnackbarProps;
 
 /**
- * Simple wrapper around Snackbar with basic state management baked in. Typically, this context
+ * Simple wrapper around NHSnackbar with basic state management baked in. Typically, this context
  * provider should wrap an entire page and components/hooks in that page will call `useSnackbar`
  * to show various alerts.
  *
@@ -80,13 +70,12 @@ export type SnackbarProviderPropsType = {
  */
 export function SnackbarContextProvider({
   children,
+  message: AlertMessageType,
   ...snackbarProps
 }: SnackbarProviderPropsType) {
   const [messageQueue, setMessageQueue] = useState<MessageType[]>([]);
   const [open, setOpen] = useState(false);
-  const [currentMessage, setCurrentMessage] = useState<MessageType | undefined>(
-    undefined
-  );
+  const [currentMessage, setCurrentMessage] = useState<MessageType>();
 
   useEffect(() => {
     if (messageQueue.length && !currentMessage) {
@@ -118,7 +107,7 @@ export function SnackbarContextProvider({
     const appendMessage = (
       message: AlertMessageType,
       severity: AlertSeverityType,
-      options: NotifyOptionsType | undefined
+      options?: NotifyOptionsType
     ) => {
       setMessageQueue((prevMessages) => {
         const key = new Date().getTime();
@@ -151,29 +140,16 @@ export function SnackbarContextProvider({
   return (
     <SnackbarContext.Provider value={snackbarContext}>
       {children}
-      <Snackbar
+      <NHSnackbar
+        {...snackbarProps}
+        {...currentMessage}
         open={open}
         onClose={handleClose}
-        autoHideDuration={6000}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
         TransitionProps={{
           onExited: handleExited,
         }}
-      >
-        <div>
-          <Alert
-            // {...snackbarProps}
-            onClose={handleClose}
-            sx={{ minWidth: 300 }}
-            // title={title}
-            elevation={6}
-            // severity={severity}
-            // variant={variant}
-          >
-            {/* {message} */}
-          </Alert>
-        </div>
-      </Snackbar>
+        testId="snackbar-alert"
+      />
     </SnackbarContext.Provider>
   );
 }

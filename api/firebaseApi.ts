@@ -1,4 +1,4 @@
-import firebaseApp from "../api/clientApp";
+import firebaseApp from "./clientApp";
 import {
   getFirestore,
   doc,
@@ -9,13 +9,10 @@ import {
   where,
   addDoc,
 } from "firebase/firestore";
-import {
-  FechaType,
-  UsuarioType,
-} from "../../components/types/firebaseTypes.type";
-import { useAppContext } from "../../context/AppContext";
+import { FechaType, UsuarioType } from "../components/types/firebaseTypes.type";
+import { useAppContext } from "../context/AppContext";
 import { useEffect, useState } from "react";
-import { useSnackbar } from "../../context/snackbar";
+import { useSnackbar } from "../context/snackbar";
 
 export type useFireBaseApiType = {
   sonidistas: UsuarioType[];

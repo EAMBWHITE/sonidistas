@@ -1,9 +1,9 @@
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import { getLocaleDate } from "../pages/api/util";
+import { getLocaleDate } from "../api/util";
 import { Avatar, ListItemAvatar } from "@mui/material";
-import useFireBaseApi, { getResponsables } from "../pages/api/firebaseApi";
+import useFireBaseApi, { getResponsables } from "../api/firebaseApi";
 import { FechaType } from "./types/firebaseTypes.type";
 
 export default function ListRol() {
