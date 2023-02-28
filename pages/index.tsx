@@ -1,14 +1,13 @@
 import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "@next/font/google";
 import styles from "../styles/Home.module.css";
 import ListRol from "../components/_ListRol";
 import DrawerAddFecha from "../components/_AddFecha";
 import { Box } from "@mui/material";
-
-const inter = Inter({ subsets: ["latin"] });
+import { useAppContext } from "../context/AppContext";
+import Login from "../components/_Login";
 
 export default function Home() {
+  const { admin } = useAppContext();
   return (
     <>
       <Head>
@@ -22,9 +21,7 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <ListRol />
-        <Box pt={5}>
-          <DrawerAddFecha />
-        </Box>
+        <Box pt={5}>{admin === true ? <DrawerAddFecha /> : <Login />}</Box>
       </main>
     </>
   );

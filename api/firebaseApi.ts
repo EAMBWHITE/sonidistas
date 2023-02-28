@@ -17,7 +17,6 @@ import {
 import { FechaType, UsuarioType } from "../components/types/firebaseTypes.type";
 import { useAppContext } from "../context/AppContext";
 import { useEffect, useState } from "react";
-import { useSnackbar } from "../context/snackbar";
 import {
   LoginWithEmailType,
   PostSaveFechaType,
@@ -126,7 +125,7 @@ export const loginWithEmailandPassword = async (
         err.code == AuthErrorCodes.INVALID_PASSWORD ||
         err.code == AuthErrorCodes.INVALID_EMAIL
       ) {
-        return { ok: false, error: "Wrong email or password" };
+        return { ok: false, error: "Email o contraseña incorrectas" };
       } else return { ok: false, error: err.message };
     });
 

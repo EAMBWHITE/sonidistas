@@ -11,7 +11,7 @@ export type AppContextType = {
 const defaultContext: AppContextType = {
   listFechas: [],
   setListFechas: () => {},
-  admin: true,
+  admin: false,
   setAdmin: (value: boolean) => {},
 };
 
@@ -23,7 +23,7 @@ export const AppContextProvider = ({
   children: ReactFragment;
 }) => {
   const [listFechas, setListFechas] = useState<FechaType[]>([]);
-  const [admin, setAdmin] = useState<boolean>(true);
+  const [admin, setAdmin] = useState<boolean>(false);
 
   return (
     <AppContext.Provider

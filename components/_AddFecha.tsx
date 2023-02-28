@@ -24,7 +24,7 @@ export default function DrawerAddFecha() {
   const [alertVal, setAlertVal] = useState<CustomizedSnackbarsType | null>(
     null
   );
-  const { saveFecha, sonidistas, loginWithEmailandPassword } = useFireBaseApi();
+  const { saveFecha, sonidistas } = useFireBaseApi();
 
   const handleClose = (
     event?: React.SyntheticEvent | Event,
@@ -37,7 +37,6 @@ export default function DrawerAddFecha() {
   };
 
   const handleSaveFecha = async () => {
-    loginWithEmailandPassword("eambwhite@gmail.com", "sonidistaPass1.");
     // first ltes validate the fields
     if (soporte == null || responsable == null || fecha == null) {
       setAlertVal({
