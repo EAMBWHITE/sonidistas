@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  AlertColor,
   Autocomplete,
   Box,
   Button,
@@ -25,7 +24,7 @@ export default function DrawerAddFecha() {
   const [alertVal, setAlertVal] = useState<CustomizedSnackbarsType | null>(
     null
   );
-  const { saveFecha, sonidistas } = useFireBaseApi();
+  const { saveFecha, sonidistas, loginWithEmailandPassword } = useFireBaseApi();
 
   const handleClose = (
     event?: React.SyntheticEvent | Event,
@@ -37,7 +36,8 @@ export default function DrawerAddFecha() {
     setAlertVal({ open: false });
   };
 
-  const handleSaveFecha = () => {
+  const handleSaveFecha = async () => {
+    loginWithEmailandPassword("eambwhite@gmail.com", "sonidistaPass1.");
     // first ltes validate the fields
     if (soporte == null || responsable == null || fecha == null) {
       setAlertVal({
@@ -61,14 +61,23 @@ export default function DrawerAddFecha() {
         datos_soporte: soporte as UsuarioType,
       },
     };
-    saveFecha(newFecha);
-    setAlertVal({
-      message: "Fecha agregada correctamente",
-      open: true,
-      severity: "success",
-      onClose: handleClose,
-    });
-    clearForm();
+    const data = await saveFecha(newFecha);
+    if (data.ok) {
+      setAlertVal({
+        message: "Fecha agregada correctamente",
+        open: true,
+        severity: "success",
+        onClose: handleClose,
+      });
+      clearForm();
+    } else {
+      setAlertVal({
+        message: data.error,
+        open: true,
+        severity: "error",
+        onClose: handleClose,
+      });
+    }
   };
 
   const clearForm = () => {

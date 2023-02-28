@@ -9,18 +9,24 @@ import {
   where,
   addDoc,
 } from "firebase/firestore";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  AuthErrorCodes,
+} from "firebase/auth";
 import { FechaType, UsuarioType } from "../components/types/firebaseTypes.type";
 import { useAppContext } from "../context/AppContext";
 import { useEffect, useState } from "react";
 import { useSnackbar } from "../context/snackbar";
-
-export type useFireBaseApiType = {
-  sonidistas: UsuarioType[];
-  saveFecha: (fecha: FechaType) => void;
-  fechas: FechaType[];
-};
+import {
+  LoginWithEmailType,
+  PostSaveFechaType,
+  useFireBaseApiType,
+} from "./firebaseApi.types";
 
 const db = getFirestore(firebaseApp);
+
+const auth = getAuth(firebaseApp);
 
 export const getData = async (): Promise<{ data: FechaType[] }> => {
   const today = new Date();
@@ -74,8 +80,18 @@ export const getResponsables = async () => {
   };
 };
 
-export const saveFecha = async (fecha: FechaType) => {
-  const docRef = await addDoc(collection(db, "fechas"), fecha);
+export const saveFecha = async (
+  fecha: FechaType
+): Promise<PostSaveFechaType> => {
+  const docRef = await addDoc(collection(db, "fechas"), fecha)
+    .then((newDoc) => {
+      return { ok: true, doc: newDoc.id };
+    })
+    .catch((err) => {
+      return { ok: false, error: err.message };
+    });
+
+  return { ...docRef };
 };
 
 export const getSonidistas = async () => {
@@ -96,10 +112,31 @@ export const getSonidistas = async () => {
   };
 };
 
+export const loginWithEmailandPassword = async (
+  email: string,
+  password: string
+): Promise<LoginWithEmailType> => {
+  const user = await signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      // Signed in
+      return { ok: true, user: userCredential };
+    })
+    .catch((err) => {
+      if (
+        err.code == AuthErrorCodes.INVALID_PASSWORD ||
+        err.code == AuthErrorCodes.INVALID_EMAIL
+      ) {
+        return { ok: false, error: "Wrong email or password" };
+      } else return { ok: false, error: err.message };
+    });
+
+  return { ...user };
+};
+
 export default function useFireBaseApi(): useFireBaseApiType {
   const [listSonidistas, setListSonidistas] = useState<any[]>([]);
   const context = useAppContext();
-  const { notifySuccess, notifyError } = useSnackbar();
+  // const { notifySuccess, notifyError } = useSnackbar();
 
   useEffect(() => {
     const dataResponsables = async () => {
@@ -118,7 +155,9 @@ export default function useFireBaseApi(): useFireBaseApiType {
     dataSonidistas();
   }, []);
 
-  const handeSaveFecha = (fecha: FechaType) => {
+  const handeSaveFecha = async (
+    fecha: FechaType
+  ): Promise<PostSaveFechaType> => {
     //validate date already exist
     const prevDate = context.listFechas.find(
       (e) =>
@@ -127,12 +166,20 @@ export default function useFireBaseApi(): useFireBaseApiType {
     );
 
     if (prevDate === undefined) {
-      // saveFecha(fecha).then(() =>
-      //   context?.setListFechas([...context.listFechas, fecha])
-      // );
-      notifySuccess("Fecha agregada correctamente");
+      const data = await saveFecha(fecha)
+        .then((newFecha) => {
+          newFecha.ok && context?.setListFechas([...context.listFechas, fecha]);
+          return { ...newFecha };
+        })
+        .catch((err) => {
+          return { ok: false, error: err.message };
+        });
+
+      // notifySuccess("Fecha agregada correctamente");
+      return { ...data };
     } else {
-      notifyError("Esa fecha ya existe");
+      // notifyError("Esa fecha ya existe");
+      return { ok: false, error: "Esa fecha ya existe" };
     }
   };
 
@@ -140,5 +187,6 @@ export default function useFireBaseApi(): useFireBaseApiType {
     fechas: context.listFechas,
     saveFecha: handeSaveFecha,
     sonidistas: listSonidistas,
+    loginWithEmailandPassword,
   };
 }
