@@ -36,6 +36,34 @@ export default function DrawerAddFecha() {
     setAlertVal({ open: false });
   };
 
+  const checkSonidista = (sonidista: UsuarioType): boolean => {
+    if (sonidista !== null) {
+      if (responsable !== null) {
+        if (responsable?.nombre === sonidista.nombre) {
+          setAlertVal({
+            message: "Favor elegir un sonidista diferente",
+            open: true,
+            severity: "error",
+            onClose: handleClose,
+          });
+          return false;
+        }
+      }
+      if (soporte !== null) {
+        if (soporte?.nombre === sonidista.nombre) {
+          setAlertVal({
+            message: "Favor elegir un sonidista diferente",
+            open: true,
+            severity: "error",
+            onClose: handleClose,
+          });
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
   const handleSaveFecha = async () => {
     // first ltes validate the fields
     if (soporte == null || responsable == null || fecha == null) {
@@ -115,10 +143,10 @@ export default function DrawerAddFecha() {
           options={sonidistas}
           sx={{ width: 300 }}
           renderInput={(params) => (
-            <TextField {...params} label="Respoonsable" />
+            <TextField {...params} label="Responsable" />
           )}
           onChange={(event: any, newValue: any) => {
-            setResponsable(newValue);
+            checkSonidista(newValue) && setResponsable(newValue);
           }}
         />
       </Box>
@@ -130,7 +158,7 @@ export default function DrawerAddFecha() {
           sx={{ width: 300 }}
           renderInput={(params) => <TextField {...params} label="Soporte" />}
           onChange={(event: any, newValue: any) => {
-            setSoporte(newValue);
+            checkSonidista(newValue) && setSoporte(newValue);
           }}
         />
       </Box>
