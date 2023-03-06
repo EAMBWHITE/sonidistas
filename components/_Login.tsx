@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -24,15 +24,30 @@ const style = {
 
 export default function Login() {
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [alertVal, setAlertVal] = useState<CustomizedSnackbarsType | null>(
     null
   );
   const { loginWithEmailandPassword } = useFireBaseApi();
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   const { setAdmin } = useAppContext();
+
+  useEffect(() => {
+    const keyDownHandler = (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleLogin();
+      }
+    };
+
+    document.addEventListener("keydown", keyDownHandler);
+
+    return () => {
+      document.removeEventListener("keydown", keyDownHandler);
+    };
+  }, []);
 
   const handleLogin = async () => {
     if (email == null || password == null) {

@@ -3,7 +3,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import { getLocaleDate } from "../api/util";
 import { Avatar, ListItemAvatar } from "@mui/material";
-import useFireBaseApi, { getResponsables } from "../api/firebaseApi";
+import useFireBaseApi from "../api/firebaseApi";
 import { FechaType } from "./types/firebaseTypes.type";
 
 export default function ListRol() {
@@ -16,7 +16,7 @@ export default function ListRol() {
           <Avatar></Avatar>
         </ListItemAvatar>
         <ListItemText
-          primary={getLocaleDate(item?.fecha?.toDate())}
+          primary={getLocaleDate(item?.fecha?.toDate())}          
           primaryTypographyProps={{
             fontSize: 18,
             fontWeight: "medium",
